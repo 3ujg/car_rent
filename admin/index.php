@@ -2,11 +2,13 @@
 // admin/index.php
 session_start();
 include __DIR__ . '/../public/config.php';
+
 // verify that the session user is still admin in DB
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
 }
+
 $curId = (int)$_SESSION['user_id'];
 $res = mysqli_query($yhendus, "SELECT role FROM users WHERE id = $curId LIMIT 1");
 if ($row = mysqli_fetch_assoc($res)) {
@@ -24,6 +26,23 @@ if ($row = mysqli_fetch_assoc($res)) {
     header('Location: login.php');
     exit;
 }
+
+// === KUSTUTAMISE LOOGIKA SAMAS FAILIS ===
+if (isset($_GET['delete_id'])) {
+    // Teeme ID täisarvuks, et vältida SQL süstimist (turvalisus!)
+    $delete_id = (int)$_GET['delete_id']; 
+    
+    if ($delete_id > 0) {
+        // Kustutame auto andmebaasist
+        $delete_query = "DELETE FROM cars WHERE id = $delete_id";
+        mysqli_query($yhendus, $delete_query);
+    }
+    
+    // Suuname tagasi puhtale lehele (eemaldab URL-ist ?delete_id= osa)
+    header('Location: index.php');
+    exit;
+}
+// =========================================
 
 // Pärime kõik autod andmebaasist
 $paring = "SELECT * FROM cars ORDER BY id DESC";
@@ -112,7 +131,7 @@ $valjund = mysqli_query($yhendus, $paring);
                                 <td class="text-end pe-4">
                                     <div class="btn-group btn-group-sm" role="group">
                                         <a href="muuda_auto.php?id=<?php echo $rida['id']; ?>" class="btn btn-outline-primary">Muuda</a>
-                                        <a href="kustuta_auto.php?id=<?php echo $rida['id']; ?>" class="btn btn-outline-danger" onclick="return confirm('Oled kindel, et soovid selle auto kustutada?');">Kustuta</a>
+                                        <a href="?delete_id=<?php echo $rida['id']; ?>" class="btn btn-outline-danger" onclick="return confirm('Oled kindel, et soovid selle auto kustutada?');">Kustuta</a>
                                     </div>
                                 </td>
                             </tr>
