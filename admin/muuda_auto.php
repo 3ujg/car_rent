@@ -39,8 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Using a simple escaped UPDATE query (prepared binding was causing errors)
-    // To keep it simple, run a basic update without binding complexity
+    // Using a simple escaped UPDATE query
     $update = "UPDATE cars SET brand='" . mysqli_real_escape_string($yhendus, $brand) . "', model='" . mysqli_real_escape_string($yhendus, $model) . "', year=$year, engine='" . mysqli_real_escape_string($yhendus, $engine) . "', fuel_type='" . mysqli_real_escape_string($yhendus, $fuel) . "', transmission='" . mysqli_real_escape_string($yhendus, $transmission) . "', seats=$seats, price_per_day=$price, description='" . mysqli_real_escape_string($yhendus, $description) . "', status='" . mysqli_real_escape_string($yhendus, $status) . "'";
     if ($db_image) $update .= ", image='" . mysqli_real_escape_string($yhendus, $db_image) . "'";
     $update .= " WHERE id=$id";
@@ -84,8 +83,31 @@ $car = mysqli_fetch_assoc($res);
             <div class="row g-3">
                 <div class="col-md-6"><label>Mark</label><input name="mark" class="form-control" value="<?php echo htmlspecialchars($car['brand'] ?? $car['mark']); ?>"></div>
                 <div class="col-md-6"><label>Mudel</label><input name="model" class="form-control" value="<?php echo htmlspecialchars($car['model']); ?>"></div>
-                <div class="col-md-4"><label>Aasta</label><input name="year" type="number" class="form-control" value="<?php echo htmlspecialchars($car['year']); ?>"></div>
-                <div class="col-md-4"><label>Mootor</label><input name="engine" class="form-control" value="<?php echo htmlspecialchars($car['engine']); ?>"></div>
+                
+                <div class="col-md-4"><label>Aasta</label>
+                    <select name="year" class="form-select">
+                        <?php 
+                        $hetke_aasta = 2026;
+                        for($y = $hetke_aasta; $y >= 1990; $y--): ?>
+                            <option value="<?php echo $y; ?>" <?php if($car['year'] == $y) echo 'selected'; ?>><?php echo $y; ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+                
+                <div class="col-md-4"><label>Mootor</label>
+                    <select name="engine" class="form-select">
+                        <?php
+                        $mootorid = ['1.0', '1.2', '1.4', '1.6', '1.8', '2.0', '2.2', '2.5', '3.0', '4.0', 'Elekter'];
+                        // Kui andmebaasis on väärtus, mida nimekirjas pole, lisame selle valikusse
+                        if (!empty($car['engine']) && !in_array($car['engine'], $mootorid)) {
+                            $mootorid[] = $car['engine'];
+                        }
+                        foreach($mootorid as $m): ?>
+                            <option value="<?php echo $m; ?>" <?php if($car['engine'] == $m) echo 'selected'; ?>><?php echo $m; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                
                 <div class="col-md-4"><label>Kütus</label>
                     <select name="fuel_type" class="form-select">
                         <option value="Bensiin" <?php if(($car['fuel_type'] ?? $car['fuel'])=='Bensiin') echo 'selected'; ?>>Bensiin</option>
@@ -94,10 +116,25 @@ $car = mysqli_fetch_assoc($res);
                         <option value="Hübriid" <?php if(($car['fuel_type'] ?? $car['fuel'])=='Hübriid') echo 'selected'; ?>>Hübriid</option>
                     </select>
                 </div>
-                <div class="col-md-4"><label>Käigukast</label><input name="transmission" class="form-control" value="<?php echo htmlspecialchars($car['transmission']); ?>"></div>
-                <div class="col-md-4"><label>Istekohad</label><input name="seats" type="number" class="form-control" value="<?php echo htmlspecialchars($car['seats']); ?>"></div>
+                
+                <div class="col-md-4"><label>Käigukast</label>
+                    <select name="transmission" class="form-select">
+                        <option value="Automaat" <?php if($car['transmission']=='Automaat') echo 'selected'; ?>>Automaat</option>
+                        <option value="Manuaal" <?php if($car['transmission']=='Manuaal') echo 'selected'; ?>>Manuaal</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-4"><label>Istekohad</label>
+                    <select name="seats" class="form-select">
+                        <?php for($i = 2; $i <= 9; $i++): ?>
+                            <option value="<?php echo $i; ?>" <?php if($car['seats'] == $i) echo 'selected'; ?>><?php echo $i; ?></option>
+                        <?php endfor; ?>
+                    </select>
+                </div>
+                
                 <div class="col-md-4"><label>Hind (€ / päev)</label><input name="price" type="number" step="0.01" class="form-control" value="<?php echo htmlspecialchars($car['price_per_day'] ?? $car['price']); ?>"></div>
                 <div class="col-12"><label>Kirjeldus</label><textarea name="description" class="form-control"><?php echo htmlspecialchars($car['description']); ?></textarea></div>
+                
                 <div class="col-md-6"><label>Staatus</label>
                     <select name="status" class="form-select">
                         <option value="vaba" <?php if($car['status']=='vaba') echo 'selected'; ?>>Vaba</option>
