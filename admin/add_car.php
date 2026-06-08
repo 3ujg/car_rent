@@ -108,19 +108,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Aasta</label>
-                    <input type="number" name="year" class="form-control" required>
+                    <select name="year" class="form-select" required>
+                        <option value="">Vali aasta</option>
+                        <?php 
+                        $hetke_aasta = 2026;
+                        for($y = $hetke_aasta; $y >= 1990; $y--): ?>
+                            <option value="<?php echo $y; ?>"><?php echo $y; ?></option>
+                        <?php endfor; ?>
+                    </select>
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label">Mootor (nt V6, 2.0 TDI)</label>
-                    <input type="text" name="engine" class="form-control" required>
+                    <label class="form-label">Mootor</label>
+                    <select name="engine" class="form-select" required>
+                        <option value="">Vali mootor</option>
+                        <?php
+                        $mootorid = ['1.0', '1.2', '1.4', '1.6', '1.8', '2.0', '2.2', '2.5', '3.0', '4.0', 'Elekter'];
+                        foreach($mootorid as $m): ?>
+                            <option value="<?php echo $m; ?>"><?php echo $m; ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
 
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                                <label class="form-label">Kütus</label>
-                                <select name="fuel_type" class="form-select" required>
-                        <option value="">Vali</option>
+                    <label class="form-label">Kütus</label>
+                    <select name="fuel_type" class="form-select" required>
+                        <option value="">Vali kütus</option>
                         <option value="Bensiin">Bensiin</option>
                         <option value="Diisel">Diisel</option>
                         <option value="Elekter">Elekter</option>
@@ -130,7 +144,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="col-md-6">
                     <label class="form-label">Käigukast</label>
                     <select name="transmission" class="form-select" required>
-                        <option value="">Vali</option>
+                        <option value="">Vali käigukast</option>
                         <option value="Automaat">Automaat</option>
                         <option value="Manuaal">Manuaal</option>
                     </select>
@@ -140,7 +154,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
                     <label class="form-label">Istekohti</label>
-                    <input type="number" name="seats" class="form-control" value="5" required>
+                    <select name="seats" class="form-select" required>
+                        <?php for($i = 2; $i <= 9; $i++): ?>
+                            <option value="<?php echo $i; ?>" <?php if($i == 5) echo 'selected'; ?>><?php echo $i; ?></option>
+                        <?php endfor; ?>
+                    </select>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">Staatus</label>
